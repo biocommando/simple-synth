@@ -117,7 +117,7 @@ function renderDownload() {
 
     }
     download('song.wav', byteArray)
-    renderDownloadButton.style.display = 'block'
+    renderDownloadButton.style.display = 'inline-block'
 }
 
 let linkExpirationTimeout = undefined
