@@ -128,7 +128,7 @@ function getLink() {
     }
     const a = document.querySelector('#share-link')
     a.innerText = 'Share this link!'
-    a.href = location.origin + location.pathname + '?' + encodeURIComponent(getProjectJsonString())
+    a.href = location.origin + location.pathname + '?' + btoa(getProjectJsonString())
     linkExpirationTimeout = setTimeout(() => {
         a.innerText = ''
         a.href = '#'
@@ -594,7 +594,7 @@ const start = async (givenProjectId) => {
     if (givenProjectId !== undefined) {
         let project
         if (givenProjectId === 'from-link') {
-            project = JSON.parse(decodeURIComponent(location.search.substr(1)))
+            project = JSON.parse(atob(location.search.substr(1)))
         } else {
             projectId = givenProjectId
             project = JSON.parse(localStorage.getItem('simple-synth-project:' + projectId))
