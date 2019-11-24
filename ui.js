@@ -122,13 +122,46 @@ function renderDownload() {
 
 let linkExpirationTimeout = undefined
 
+function textShortener(text, direction) {
+    const tagReplacers = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const knownTags = ['"instrument"', '"name"', '"data"', '"pianoKeysOffset"', '"delaySend"', '"notes"', 
+    '"attack"', '"decay"', '"sustain"', '"release"', '"cutoff"', '"resonance"', '"adsrToFilter"', '"distortion"', 
+    '"volume"', '"basic"', '"pluck"', '"soft-bass"', '"bass"', '"piano"', '"voc-pad"', '"guitar"', '"soft-synth"', 
+    '"mellow-strings"', '"reso-stab"', '"gnarly"', '"synth-pluck"', '"industrialism"', '"totally-alien"', '"hihat"', 
+    '"hihat2"', '"kick"', '"kick2"', '"snare"', '"clap"', '"crash"', '"delaySettings"',
+    '"delaySelection"', '"feedbackSelection"', '"tempo"', '"editedInstruments"', '"song"', '"patterns"']
+    if (direction === 'shorten') {
+        let shortenedStr = text
+        knownTags.push('\\[\\],')
+        knownTags.push('\\],\\[')
+        knownTags.push('\\0H\\0H\\0H\\0H')
+        knownTags.forEach(
+            (tag, i) => {
+                shortenedStr = shortenedStr.replace(new RegExp(tag, 'g'), '\0' + tagReplacers[i])
+            }
+        )
+        return shortenedStr
+    }
+    if (direction === 'expand') {
+        let expandedStr = text
+        knownTags.push('[],')
+        knownTags.push('],[')
+        knownTags.push('[],[],[],[],')
+        knownTags.forEach((tag, i) => {
+            expandedStr = expandedStr.replace(new RegExp('\0' + tagReplacers[i], 'g'), tag)
+        })
+        return expandedStr
+    }
+}
+
 function getLink() {
     if (linkExpirationTimeout !== undefined) {
         clearTimeout(linkExpirationTimeout)
     }
     const a = document.querySelector('#share-link')
     a.innerText = 'Share this link!'
-    a.href = location.origin + location.pathname + '?' + btoa(getProjectJsonString())
+
+    a.href = location.origin + location.pathname + '?' + btoa(textShortener(getProjectJsonString(), 'shorten'))
     linkExpirationTimeout = setTimeout(() => {
         a.innerText = ''
         a.href = '#'
@@ -541,6 +574,8 @@ function getProjectJsonString() {
     const editedInstruments = getListOfEditedInstruments().map(name => {
         const obj = {name, data: instruments[name]}
         delete obj.data.oscShape
+        delete obj.data.originalSampleRate
+        delete obj.data.constantRate
         return obj;
     })
     return JSON.stringify({ song, patterns, delaySettings, tempo, editedInstruments });
@@ -616,7 +651,7 @@ const start = async (givenProjectId) => {
     if (givenProjectId !== undefined) {
         let project
         if (givenProjectId === 'from-link') {
-            project = JSON.parse(atob(location.search.substr(1)))
+            project = JSON.parse(textShortener(atob(location.search.substr(1)), 'expand'))
         } else {
             projectId = givenProjectId
             project = JSON.parse(localStorage.getItem('simple-synth-project:' + projectId))
