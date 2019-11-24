@@ -47,7 +47,7 @@ function renderDownload() {
     })
     renderProcessor.handlePortEvent({ type: 'start-sequence', sequence, offset: 0 })
     let sampleBuf = []
-    let max = -Infinity, min = Infinity
+    //let max = -Infinity, min = Infinity
 
     measPerf()
 
@@ -320,11 +320,12 @@ function pastePattern() {
 
 function clearPattern() {
     patterns[editPatternIdx] = undefined
-    ensurePatternExists(editPatternIdx)
+    changePattern(0)
+    /*ensurePatternExists(editPatternIdx)
     renderPianoKeys(false)
     renderPatternGrid()
     sequence = getPatternSequence(editPatternIdx)
-    processor.port.postMessage({ type: 'update-sequence', sequence })
+    processor.port.postMessage({ type: 'update-sequence', sequence })*/
 }
 
 function copyStep() {
@@ -615,7 +616,6 @@ const start = async (givenProjectId) => {
 
         tempo = project.tempo
         document.querySelector('#tempo-input').value = tempo
-        document.querySelector('#tempo-display').innerText = tempo
 
         if (givenProjectId !== 'from-link') {
             projectName = JSON.parse(localStorage.getItem('simple-synth-projects')).find(p => p.id === projectId).name
@@ -626,6 +626,7 @@ const start = async (givenProjectId) => {
 
         sendDelayParamsChanged()
     }
+    document.querySelector('#tempo-display').innerText = tempo
 
     switchMode('song-edit')
     document.querySelector('#div-grid').style.display = 'block'

@@ -10,10 +10,11 @@ const expensiveInterval = 32;
 
 class Distortion {
     constructor (amount) {
-        this.setAmount(Math.log10((9 * amount + 1)))
+        this.setAmount(amount)
     }
 
     setAmount(amount) {
+        amount = Math.log10((9 * amount + 1))
         this.amount = Math.min(Math.max(amount, 0), 1)
         this.clipAt = Math.max(1 - amount, 0.001)
         this.amplify = 1 / this.clipAt
