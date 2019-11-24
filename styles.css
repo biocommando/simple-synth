@@ -1,0 +1,110 @@
+* {
+    font-family: sans-serif;
+}
+
+.grid-row {
+    display: flex;
+}
+
+.grid-cell {
+    display: flex;
+    width: 100px;
+    height: 85px;
+    font-size: 36px;
+    background-color: wheat;
+    margin: 5px;
+    user-select: none;
+}
+
+.grid-cell.first-in-bar {
+    background-color: burlywood;
+}
+
+.grid-cell.first-in-bar.song {
+    background-color: wheat;
+}
+
+.grid-cell.selected, .grid-cell.first-in-bar.song.grid-cell.selected {
+    background-color: chocolate;
+}
+
+.grid-cell.playing {
+    background-color: lime;
+}
+
+.grid-cell.song {
+    font-size: 12px;
+}
+
+.piano-key {
+    display: inline-block;
+    width: 29px;
+    margin: 3px;
+    height: 100px;
+    text-align: center;
+    user-select: none;
+}
+
+.piano-key-white {
+    background-color: lightblue;
+    color: navy;
+}
+
+.piano-key-black {
+    background-color: navy;
+    color: lightblue;
+}
+
+.piano-key-white.piano-key-selected {
+    background-color: pink;
+}
+
+.piano-key-black.piano-key-selected {
+    background-color: maroon;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+button {
+    font-size: 16px;
+    margin: 5px;
+}
+
+.control-icon {
+    width: 32px;
+    height: 32px;
+    margin: 5px;
+}
+
+input, select {
+    font-size: 16px;
+}
+
+.text-controls {
+    display: inline-block;
+    margin-top: 8px;
+    vertical-align: top;
+}
+
+.select-song-button {
+    display: inline-block;
+    width: 200px;
+    min-height: 45px;
+    background-color: wheat;
+    margin: 10px;
+    text-align: center;
+    padding-top: 20px;
+    user-select: none;
+}
+
+.date-string {
+    font-size: 11px;
+}
+
+summary {
+    user-select: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

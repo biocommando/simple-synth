@@ -1,0 +1,161 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="startup-controls">
+        <button onclick="start()">Create new song</button>
+        <h2>Open saved project</h2>
+        <div id="startup-controls-dynamic">
+            No saved projects found!
+        </div>
+    </div>
+    <div id="pattern-controls" style="display:none">
+        <img src="play.png" onclick="playSequence()" class="control-icon" title="Play pattern" />
+        <img src="stop.png" onclick="stopSequence()" class="control-icon" title="Stop playback" />
+        <img src="left.png" onclick="changePatternFromUi(-1)" class="control-icon" title="Previous pattern" />
+        <div class="text-controls">
+            <span class="strong">#</span><span class="strong" id="pattern-number">1</span>
+            <input id="pattern-name" value="Pattern 1" onchange="changePatternName()" />
+        </div>
+        <img src="right.png" onclick="changePatternFromUi(1)" class="control-icon" title="Next pattern" />
+        <img src="plus.png" onclick="createPattern()" class="control-icon" title="Create new pattern" />
+        <div class="text-controls">
+            Instrument <select id="instrument-select" onchange="instrumentChanged()"></select>
+        </div>
+
+        <img src="copy.png" onclick="copyPattern()" class="control-icon" title="Copy pattern" />
+        <img src="paste.png" onclick="pastePattern()" class="control-icon" title="Paste pattern" />
+
+        <img src="bin.png" onclick="clearPattern()" class="control-icon" title="Delete pattern" />
+
+        <img src="songmode.png" onclick="switchMode('song-edit')" class="control-icon" title="Show song editor" />
+    </div>
+    <div id="song-controls" style="display:none">
+        <img src="play.png" onclick="playSequence()" class="control-icon" title="Play song" />
+        <img src="stop.png" onclick="stopSequence()" class="control-icon" title="Stop playback" />
+        <div class="text-controls">
+            Pattern <select id="pattern-select"></select>
+        </div>
+
+        <img src="plus.png" onclick="addPattern()" class="control-icon" title="Add pattern" />
+        <img src="minus.png" onclick="removePattern()" class="control-icon" title="Remove pattern" />
+
+        <img src="patternmode.png" onclick="switchMode('pattern-edit')" class="control-icon"
+            title="Show pattern editor" />
+        <img src="diskette.png" onclick="saveProject()" class="control-icon" title="Save song" />
+        <img src="download.png" id="renderDownloadButton" onclick="renderDownload()" class="control-icon"
+            title="Download song as .wav file" />
+        <img src="getlink.png" onclick="getLink()" class="control-icon" title="Export song link" />
+        <div class="text-controls">
+            <a href="#" id="share-link" target="_blank"></a>
+        </div>
+        <img src="new.png" onclick="location.search=''" class="control-icon" title="Back to project list" />
+    </div>
+    <div id="div-grid" style="display:none">
+    </div>
+    <div id="piano-keys" style="display:none">
+        <div class="text-controls">
+            Octave <span id="keyboard-octave">0</span>
+        </div>
+        <img src="minus.png" onclick="changeOctave(-1)" class="control-icon" title="Octave down" />
+        <img src="plus.png" onclick="changeOctave(1)" class="control-icon" title="Octave up" />
+        <div class="text-controls">
+            Delay send
+            <select id="delay-amount-select" onchange="delaySendAmountChanged(Number(this.value))">
+                <option value="0">0%</option>
+                <option value="0.1">10%</option>
+                <option value="0.2">20%</option>
+                <option value="0.3">30%</option>
+                <option value="0.4">40%</option>
+                <option value="0.5">50%</option>
+                <option value="0.6">60%</option>
+                <option value="0.7">70%</option>
+                <option value="0.8">80%</option>
+                <option value="0.9">90%</option>
+                <option value="1">100%</option>
+            </select>
+        </div>
+
+        <img src="copy.png" onclick="copyStep()" class="control-icon" title="Copy step" />
+        <img src="paste.png" onclick="pasteStep()" class="control-icon" title="Paste step" />
+        <img src="bin.png" onclick="clearStep()" class="control-icon" title="Clear step" />
+
+        <div id="piano-keys-content"></div>
+        <details>
+            <summary>Instrument editor </summary>
+            <div>
+                <h3>ADSR Envelope</h3>
+                Attack: <input id="instr-edit-attack" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('attack', Number(this.value))" />
+                Decay: <input id="instr-edit-decay" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('decay', Number(this.value))" />
+                Sustain: <input id="instr-edit-sustain" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('sustain', Number(this.value))" />
+                Release: <input id="instr-edit-release" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('release', Number(this.value))" />
+                <h3>Filter</h3>
+                Cutoff: <input id="instr-edit-cutoff" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('cutoff', Number(this.value))" />
+                Resonance: <input id="instr-edit-resonance" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('resonance', Number(this.value))" />
+                ADSR to cutoff: <input id="instr-edit-adsrToFilter" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('adsrToFilter', Number(this.value))" />
+                <h3>Common</h3>
+                Distortion: <input id="instr-edit-distortion" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('distortion', Number(this.value))" />
+                Volume: <input id="instr-edit-volume" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('volume', Number(this.value))" />
+                <br />
+                <button onclick="resetInstrument()">Reset instrument</button>
+            </div>
+        </details>
+    </div>
+
+    <details id="global-controls" style="display:none">
+        <summary>Global parameters</summary>
+        <div>
+            Tempo <input id="tempo-input" type="range" min="40" max="220" step="1" value="120" oninput="tempoChanged()">
+            <span id="tempo-display"></span> bpm
+        </div>
+        <div>
+            Send delay time
+            <select id="delay-time" onchange="sendDelayParamsChanged()">
+                <option value="1">1/16</option>
+                <option value="2">1/8</option>
+                <option value="3" selected>3/16</option>
+                <option value="4">1/4</option>
+                <option value="5">5/16</option>
+                <option value="6">3/8</option>
+                <option value="7">7/16</option>
+                <option value="8">2/4</option>
+            </select>
+            feedback
+            <select id="delay-feedback" onchange="sendDelayParamsChanged()">
+                <option value="0.1">10%</option>
+                <option value="0.2">20%</option>
+                <option value="0.3">30%</option>
+                <option value="0.4">40%</option>
+                <option value="0.5" selected>50%</option>
+                <option value="0.6">60%</option>
+                <option value="0.7">70%</option>
+                <option value="0.8">80%</option>
+                <option value="0.9">90%</option>
+            </select>
+            <div>
+            </div>
+
+        </div>
+    </details>
+    <script src="simple-synth.js"></script>
+    <script src="instruments.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        onDocumentLoad()
+    </script>
+</body>
+
+</html>
