@@ -314,6 +314,7 @@ function copyPattern() {
 }
 
 function pastePattern() {
+    if (!copiedPattern) return
     patterns[editPatternIdx] = JSON.parse(copiedPattern)
     changePattern(0)
 }
@@ -333,6 +334,7 @@ function copyStep() {
 }
 
 function pasteStep() {
+    if (!copiedStep) return
     patterns[editPatternIdx].notes[patternStep] = JSON.parse(copiedStep)
     updateStep()
 }
@@ -473,6 +475,25 @@ function addPattern() {
 function removePattern() {
     const pattern = Number(document.querySelector('#pattern-select').value)
     song[songStep] = song[songStep].filter(pn => pn !== pattern)
+    renderSongGrid()
+    getSequenceFromSong()
+}
+
+let copiedPatternGroup
+
+function copyPatternGroup() {
+    copiedPatternGroup = JSON.stringify(song[songStep])
+}
+
+function pastePatternGroup() {
+    if (!copiedPatternGroup) return
+    song[songStep] = JSON.parse(copiedPatternGroup)
+    renderSongGrid()
+    getSequenceFromSong()
+}
+
+function clearSongStep() {
+    song[songStep] = []
     renderSongGrid()
     getSequenceFromSong()
 }
