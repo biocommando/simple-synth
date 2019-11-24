@@ -376,7 +376,7 @@ class SimpleSynth extends extClass {
         if (!constantRate) {
             init.phaseProgress = 16.3515978 * Math.pow(2, note / 12) / sampleRate
         } else {
-            init.phaseProgress = 44100 / sampleRate / init.oscShape.length
+            init.phaseProgress = (init.originalSampleRate ? init.originalSampleRate : 44100) / sampleRate / init.oscShape.length
         } 
         init.id = ++this.idCounter
         const voice = createVoice(init)
