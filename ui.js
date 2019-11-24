@@ -494,7 +494,7 @@ function saveProject() {
         return;
     }
     let projects = localStorage.getItem('simple-synth-projects')
-    if (!projects) projects = {}
+    if (!projects) projects = []
     else projects = JSON.parse(projects)
     const currentProject = projects.find(p => p.id === projectId)
     if (!currentProject) {
