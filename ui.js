@@ -54,14 +54,14 @@ function renderDownload() {
     while (currentTime < (sequence[sequence.length - 1].position + 1000) / 1000) {
         const buf = new Array(128).fill(0)
         renderProcessor.process(undefined, [[buf]])
-        min = Math.min(...buf, min)
-        max = Math.max(...buf, max)
+        /*min = Math.min(...buf, min)
+        max = Math.max(...buf, max)*/
         sampleBuf.push(...buf)
     }
 
     measPerf('process audio')
 
-    const peakMax = Math.max(Math.abs(min), Math.abs(max))
+    //const peakMax = Math.max(Math.abs(min), Math.abs(max))
 
     const header = [
         ...'RIFF'.split('').map(x => x.charCodeAt(0)),
@@ -83,10 +83,10 @@ function renderDownload() {
 
     const twoByteBuf = [0, 0]
     for (let i = 0; i < sampleBuf.length; i++) {
-        let val = sampleBuf[i];
-        if (peakMax > 1) {
+        let val = Math.min(Math.max(sampleBuf[i], -1), 1);
+        /*if (peakMax > 1) {
             val /= peakMax
-        }
+        }*/
         val *= 32767
         val = Math.floor(val)
         getBytes(val, 2, twoByteBuf)
