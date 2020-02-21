@@ -135,6 +135,7 @@ function textShortener(text, direction) {
         knownTags.push('\\[\\],')
         knownTags.push('\\],\\[')
         knownTags.push('\\0H\\0H\\0H\\0H')
+        knownTags.push('"filterType"')
         knownTags.forEach(
             (tag, i) => {
                 shortenedStr = shortenedStr.replace(new RegExp(tag, 'g'), '\0' + tagReplacers[i])
@@ -147,6 +148,7 @@ function textShortener(text, direction) {
         knownTags.push('[],')
         knownTags.push('],[')
         knownTags.push('[],[],[],[],')
+        knownTags.push('"filterType"')
         knownTags.forEach((tag, i) => {
             expandedStr = expandedStr.replace(new RegExp('\0' + tagReplacers[i], 'g'), tag)
         })
@@ -304,7 +306,7 @@ function changePattern(amount, updateSequence = true) {
 }
 
 function instrumentParametersToUi() {
-    const params = ["attack", "decay", "sustain", "release", "cutoff", "resonance", "adsrToFilter", "distortion", "volume"]
+    const params = ["attack", "decay", "sustain", "release", "cutoff", "resonance", "adsrToFilter", "distortion", "volume", "filterType"]
     params.forEach(p => document.querySelector(`#instr-edit-${p}`).value = instruments[patterns[editPatternIdx].instrument][p])
 }
 

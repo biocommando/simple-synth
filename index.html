@@ -102,6 +102,13 @@
                 Release: <input id="instr-edit-release" type="range" min="0" max="1" step="0.01"
                     oninput="editInstrument('release', Number(this.value))" />
                 <h3>Filter</h3>
+                Type: <select id="instr-edit-filterType" onchange="editInstrument('filterType', Number(this.value))">
+                    <option value="0">Moog</option>
+                    <option value="1">Low pass 12 dB</option>
+                    <option value="2">Low pass 24 dB</option>
+                    <option value="3">High pass 12 dB</option>
+                    <option value="4">High pass 24 dB</option>
+                </select>
                 Cutoff: <input id="instr-edit-cutoff" type="range" min="0" max="1" step="0.01"
                     oninput="editInstrument('cutoff', Number(this.value))" />
                 Resonance: <input id="instr-edit-resonance" type="range" min="0" max="1" step="0.01"

@@ -8,6 +8,80 @@ if (!isWorkletNode) {
 
 const expensiveInterval = 32;
 
+const invPi = 1 / Math.PI;
+
+function hardClip(input) {
+    return input > 1 ? 1 : (input < -1 ? -1 : input)
+}
+
+class LpfNPole {
+
+    constructor(poles) {      
+        this.cutCalc = 0
+        this.feedbackGain = 0
+        this.stages = new Array(poles).fill(0)
+        this.prevOut = 0
+    }
+    
+    setCutoff(c) {
+        c = c < 0 ? 0 : c
+        this.cutCalc = c / (invPi + c)
+    }
+    
+    setResonance(r) {
+        this.feedbackGain = r
+    }
+    
+    process(input) {
+        let s = input - 5 * hardClip(this.prevOut * this.feedbackGain)
+        for (let i = 0; i < this.stages.length; i++) {
+            this.processStage(i, s)
+            s = this.stages[i]
+        }
+        this.prevOut = s
+        return s
+    }
+    
+    processStage(stage, input) {
+        this.stages[stage] = this.stages[stage] + this.cutCalc * (input - this.stages[stage])
+    }
+}
+
+class HpfNPole {
+
+    constructor(poles) {      
+        this.cutCalc = 0
+        this.feedbackGain = 0
+        this.stages = new Array(poles).fill(0).map(() => ({i: 0, o: 0}))
+        this.prevOut = 0
+    }
+    
+    setCutoff(c) {
+        c = c < 0 ? 0 : c
+        this.cutCalc = invPi / (invPi + c)
+    }
+    
+    setResonance(r) {
+        this.feedbackGain = r
+    }
+    
+    process(input) {
+        let s = input - 5 * hardClip(this.prevOut * this.feedbackGain)
+        for (let i = 0; i < this.stages.length; i++) {
+            this.processStage(i, s)
+            s = this.stages[i].o
+        }
+        this.prevOut = s
+        return s
+    }
+    
+    processStage(stage, input) {
+        this.stages[stage].o = this.cutCalc * (input + this.stages[stage].o - this.stages[stage].i);
+        this.stages[stage].i = input;
+    }    
+}
+
+
 class Distortion {
     constructor (amount) {
         this.setAmount(amount)
@@ -220,7 +294,27 @@ const createVoice = init => {
     adsr.setSustain(init.sustain)
     adsr.setRelease(init.release / expensiveInterval)
     
-    const filter = new MoogFilter()
+    let filter
+    switch (init.filterType) {
+        case 1:
+            filter = new LpfNPole(2)
+            break
+        case 2:
+            filter = new LpfNPole(4)
+            break
+        case 3:
+            filter = new HpfNPole(2)
+            break
+        case 4:
+            filter = new HpfNPole(4)
+            break
+        default:
+        case 0:
+            filter = new MoogFilter()
+            break
+    }
+    
+    
     filter.setCutoff(init.cutoff)
     filter.setResonance(init.resonance)
 
