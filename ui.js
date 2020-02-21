@@ -235,10 +235,12 @@ function switchMode(newMode) {
     if (mode === 'pattern-edit') {
         document.querySelector('#pattern-controls').style.display = 'block'
         document.querySelector('#song-controls').style.display = 'none'
+        document.querySelector('#expanded-pattern-list').style.display = 'none'
         document.querySelector('#piano-keys').style.display = 'block'
         changePattern(0)
     } else if (mode === 'song-edit') {
         document.querySelector('#song-controls').style.display = 'block'
+        document.querySelector('#expanded-pattern-list').style.display = 'block'
         document.querySelector('#pattern-controls').style.display = 'none'
         document.querySelector('#piano-keys').style.display = 'none'
         document.querySelector('#pattern-select').innerHTML = patterns.map((p, i) => `<option value="${i}">${htmlEscape(p.name)}` + '</option>').join('')
@@ -471,6 +473,8 @@ function renderPatternGrid() {
 }
 
 function renderSongGrid() {
+    const getPatternsInCell = songPatterns => patterns.filter((_, i) => songPatterns.includes(i)).map(p => htmlEscape(p.name))
+
     document.querySelectorAll('.grid-cell').forEach(x => {
         x.classList.remove('selected')
         x.classList.add('song')
@@ -479,6 +483,9 @@ function renderSongGrid() {
         const row = Math.floor(songStep / 8)
         const cell = songStep % 8
         document.querySelector(`[data-grid-cell="${row},${cell}"]`).classList.add('selected')
+        const patternsInCell = getPatternsInCell(song[songStep])
+        document.querySelector('#expanded-pattern-list').innerHTML = `Song step #${songStep + 1}: ` +  
+            (patternsInCell.length === 0 ? '(empty)' : patternsInCell.join(`,${'&nbsp;'.repeat(4)}`))
     }
     song.forEach((songPatterns, idx) => {
         const row = Math.floor(idx / 8)
@@ -487,7 +494,7 @@ function renderSongGrid() {
         if (songPatterns.length === 0) {
             element.innerText = ''
         } else {
-            const patternsInCell = patterns.filter((_, i) => songPatterns.includes(i)).map(p => htmlEscape(p.name))
+            const patternsInCell = getPatternsInCell(songPatterns)
             if (patternsInCell.length > 6) {
                 patternsInCell.splice(5)
                 patternsInCell.push('...')
