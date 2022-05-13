@@ -550,9 +550,38 @@ function sendDelayParamsChanged() {
     })
 }
 
-let projectName = '', projectId = crypto.getRandomValues(new Uint8Array(16)).join('')
+function syncProjects() {
+    const projects = JSON.parse(localStorage.getItem('simple-synth-projects'))
+    const remove = []
+    projects.forEach((p, i) => {
+        const storageId = 'simple-synth-project:' + p.id
+        if (!localStorage.getItem(storageId)) {
+            remove.push(i)
+        }
+    })
+    localStorage.setItem('simple-synth-projects', JSON.stringify(projects.filter((_, i) => !remove.includes(i))))
+}
+
+function deleteProject(id) {
+    const storageId = 'simple-synth-project:' + id
+    const name = JSON.parse(localStorage.getItem('simple-synth-projects')).find(p => p.id === id).name
+    const yes = confirm('Do you really want to delete project ' + name + '?')
+    if (yes) {
+        localStorage.removeItem(storageId)
+        onDocumentLoad()
+    }
+}
+
+function generateProjectId() {
+    return crypto.getRandomValues(new Uint8Array(16)).join('')
+}
+
+let projectName = '', projectId = generateProjectId()
 
 function saveProject(projectNameParam, projectIdParam) {
+    if (projectId === 'autobackup') {
+        projectId = generateProjectId()
+    }
     projectName = projectNameParam ? projectNameParam : prompt('Project name?', projectName)
     if (!projectName) {
         alert('Saving aborted')
@@ -571,8 +600,7 @@ function saveProject(projectNameParam, projectIdParam) {
 
     localStorage.setItem('simple-synth-projects', JSON.stringify(projects))
 
-
-    localStorage.setItem('simple-synth-project:' + projectId, getProjectJsonString())
+    localStorage.setItem('simple-synth-project:' + currentProject.id, getProjectJsonString())
 }
 
 function getProjectJsonString() {
@@ -616,9 +644,12 @@ function onDocumentLoad() {
     if (location.search) {
         document.querySelector('#startup-controls-dynamic').innerHTML = `<div class="select-song-button" onclick="start('from-link')">Project from link</div>`
     } else if (localStorage.getItem('simple-synth-projects')) {
+        syncProjects()
         const projects = JSON.parse(localStorage.getItem('simple-synth-projects'))
         document.querySelector('#startup-controls-dynamic').innerHTML = projects
-            .map(p => `<div class="select-song-button" onclick="start('${p.id}')">${htmlEscape(p.name)}<br/><span class="date-string">${p.date}</span></div>`)
+            .map(p => `<div class="select-song-button" onclick="start('${p.id}')">${htmlEscape(p.name)}<br/><span class="date-string">${p.date}</span>
+                </div>
+                <img class="control-icon" src="bin.png" onclick="deleteProject('${p.id}')" />`)
             .join('')
     }
 
