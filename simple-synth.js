@@ -402,11 +402,13 @@
                 if (next && next.position <= this.sequence.position) {
                     this.sequence.step++
                     if (isWorkletNode) {
-                        this.postMessage('seq-step', {step: this.sequence.step})
+                        this.postMessage('seq-step', {step: this.sequence.step, positionSeconds: this.sequence.position / sampleRate})
                     }
                     next.notes.forEach(noteInit => {
                         this.noteOn(noteInit.note, { presetId: noteInit.preset, delaySend: noteInit.delaySend }, noteInit.lengthMs)
                     })
+                } else if (!next && !this.sequence.stopNotified) {
+                    this.postMessage('seq-end', {})
                 }
                 this.sequence.position += channel1LeftBuffer.length
             }

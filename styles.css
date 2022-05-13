@@ -32,7 +32,7 @@
     background-color: darkolivegreen;
 }
 
-.grid-cell.playing {
+.grid-cell.playing, .grid-cell.first-in-bar.playing {
     background-color: lime;
 }
 

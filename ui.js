@@ -642,19 +642,27 @@ function onDocumentLoad() {
     newPresetToJson = () => { const i = { ...instruments.basic }; i.oscShape = i.b64Os; delete i.b64Os; prompt("json", JSON.stringify({ "name here": i })) }
 }
 
-function clearPlayingStatus() {
-    document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'))
+function updatePlayingStatus(command) {
+    if (command === 'clear' || updatePlayingStatus.xy !== command.xy) {
+        updatePlayingStatus.xy = ''
+        document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'))
+    }
+    if (command.xy && updatePlayingStatus.xy !== command.xy) {
+        updatePlayingStatus.xy = command.xy
+        document.querySelector(`[data-grid-cell="${command.xy}"]`).classList.add('playing')
+    }
 }
 
 function processMessageFromAudioWorkletNode(e) {
     if (e.id === 'seq-step') {
         if (mode === 'song-edit') {
-            const step = e.step - 1
+            const step = Math.floor(e.positionSeconds / 15 * tempo / 32)
             const x = Math.floor(step / 8)
             const y = step % 8
-            clearPlayingStatus()
-            document.querySelector(`[data-grid-cell="${x},${y}"]`).classList.add('playing')
+            updatePlayingStatus({xy: `${x},${y}`})
         }
+    } else if (e.id === 'seq-end') {
+        updatePlayingStatus('clear')
     }
 }
 
@@ -728,7 +736,7 @@ function playSequence() {
 }
 
 function stopSequence() {
-    clearPlayingStatus()
+    updatePlayingStatus('clear')
     processor.port.postMessage({
         type: 'stop-sequence',
         sequence
