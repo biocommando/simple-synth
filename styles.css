@@ -28,6 +28,10 @@
     background-color: chocolate;
 }
 
+.grid-cell.selected.playing, .grid-cell.first-in-bar.song.grid-cell.selected.playing {
+    background-color: darkolivegreen;
+}
+
 .grid-cell.playing {
     background-color: lime;
 }

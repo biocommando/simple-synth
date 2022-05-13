@@ -366,7 +366,7 @@
             if (message.type === 'note-on') {
                 const noteId = this.noteOn(message.note, message.voiceInit, message.lengthMs)
                 if (isWorkletNode) {
-                    this.port.postMessage({
+                    this.postMessage('note-on' , {
                         noteId,
                         correlationId: message.correlationId
                     })
@@ -401,6 +401,9 @@
                 const next = this.sequence.noteData[step]
                 if (next && next.position <= this.sequence.position) {
                     this.sequence.step++
+                    if (isWorkletNode) {
+                        this.postMessage('seq-step', {step: this.sequence.step})
+                    }
                     next.notes.forEach(noteInit => {
                         this.noteOn(noteInit.note, { presetId: noteInit.preset, delaySend: noteInit.delaySend }, noteInit.lengthMs)
                     })
@@ -451,6 +454,10 @@
                 }
             })
             return true
+        }
+
+        postMessage(id, payload) {
+            this.port.postMessage({id, ...payload})
         }
 
         noteOn(note, init, lengthMs) {

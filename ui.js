@@ -551,7 +551,7 @@ function sendDelayParamsChanged() {
 
 let projectName = '', projectId = crypto.getRandomValues(new Uint8Array(16)).join('')
 
-function saveProject(projectNameParam) {
+function saveProject(projectNameParam, projectIdParam) {
     projectName = projectNameParam ? projectNameParam : prompt('Project name?', projectName)
     if (!projectName) {
         alert('Saving aborted')
@@ -560,9 +560,9 @@ function saveProject(projectNameParam) {
     let projects = localStorage.getItem('simple-synth-projects')
     if (!projects) projects = []
     else projects = JSON.parse(projects)
-    let currentProject = projects.find(p => p.id === projectId)
+    let currentProject = projects.find(p => p.id === (projectIdParam ? projectIdParam : projectId))
     if (!currentProject) {
-        currentProject = { id: projectId }
+        currentProject = { id: projectIdParam ? projectIdParam : projectId }
         projects.push(currentProject)
     }
     currentProject.name = projectName
@@ -642,6 +642,21 @@ function onDocumentLoad() {
     newPresetToJson = () => { const i = { ...instruments.basic }; i.oscShape = i.b64Os; delete i.b64Os; prompt("json", JSON.stringify({ "name here": i })) }
 }
 
+function clearPlayingStatus() {
+    document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'))
+}
+
+function processMessageFromAudioWorkletNode(e) {
+    if (e.id === 'seq-step') {
+        if (mode === 'song-edit') {
+            const step = e.step - 1
+            const x = Math.floor(step / 8)
+            const y = step % 8
+            clearPlayingStatus()
+            document.querySelector(`[data-grid-cell="${x},${y}"]`).classList.add('playing')
+        }
+    }
+}
 
 let processor
 
@@ -653,6 +668,7 @@ const start = async (givenProjectId) => {
         })
         await audioCtx.audioWorklet.addModule('simple-synth.js')
         processor = new AudioWorkletNode(audioCtx, 'simple-synth-processor')
+        processor.port.onmessage = e => processMessageFromAudioWorkletNode(e.data)
         await processor.connect(audioCtx.destination)
     }
     processor.port.postMessage({ type: 'preset', presetId: 'basic', presetData: instruments.basic })
@@ -712,6 +728,7 @@ function playSequence() {
 }
 
 function stopSequence() {
+    clearPlayingStatus()
     processor.port.postMessage({
         type: 'stop-sequence',
         sequence
