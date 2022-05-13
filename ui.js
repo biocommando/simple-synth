@@ -660,9 +660,14 @@ function processMessageFromAudioWorkletNode(e) {
             const x = Math.floor(step / 8)
             const y = step % 8
             updatePlayingStatus({xy: `${x},${y}`})
+        } else {
+            const step = Math.floor(e.positionSeconds / 15 * tempo)
+            const x = Math.floor(step / 8)
+            const y = step % 8
+            updatePlayingStatus({xy: `${x},${y}`})
         }
     } else if (e.id === 'seq-end') {
-        updatePlayingStatus('clear')
+        setTimeout(() => updatePlayingStatus('clear'), 500)
     }
 }
 

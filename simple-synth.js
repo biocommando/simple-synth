@@ -408,6 +408,7 @@
                         this.noteOn(noteInit.note, { presetId: noteInit.preset, delaySend: noteInit.delaySend }, noteInit.lengthMs)
                     })
                 } else if (!next && !this.sequence.stopNotified) {
+                    this.sequence.stopNotified = true
                     this.postMessage('seq-end', {})
                 }
                 this.sequence.position += channel1LeftBuffer.length

@@ -28,7 +28,7 @@
     background-color: chocolate;
 }
 
-.grid-cell.selected.playing, .grid-cell.first-in-bar.song.grid-cell.selected.playing {
+.grid-cell.selected.playing, .grid-cell.first-in-bar.grid-cell.selected.playing {
     background-color: darkolivegreen;
 }
 
