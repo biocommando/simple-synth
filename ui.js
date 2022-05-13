@@ -231,6 +231,7 @@ function ensurePatternExists(idx) {
 }
 
 function switchMode(newMode) {
+    stopSequence()
     mode = newMode
     if (mode === 'pattern-edit') {
         document.querySelector('#pattern-controls').style.display = 'block'
