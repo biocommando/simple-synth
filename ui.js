@@ -551,8 +551,8 @@ function sendDelayParamsChanged() {
 
 let projectName = '', projectId = crypto.getRandomValues(new Uint8Array(16)).join('')
 
-function saveProject() {
-    projectName = prompt('Project name?', projectName)
+function saveProject(projectNameParam) {
+    projectName = projectNameParam ? projectNameParam : prompt('Project name?', projectName)
     if (!projectName) {
         alert('Saving aborted')
         return;
