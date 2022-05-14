@@ -697,6 +697,7 @@ function updatePlayingStatus(command) {
     if (command.xy && updatePlayingStatus.xy !== command.xy) {
         updatePlayingStatus.xy = command.xy
         document.querySelector(`[data-grid-cell="${command.xy}"]`).classList.add('playing')
+        document.querySelectorAll('[src="play.png"]').forEach(e => e.classList.add('playing'))
     }
 }
 

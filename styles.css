@@ -83,6 +83,10 @@ button {
     cursor: pointer;
 }
 
+.control-icon.playing {
+    opacity: 50%;
+}
+
 input, select {
     font-size: 16px;
 }
