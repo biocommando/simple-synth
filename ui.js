@@ -186,6 +186,10 @@ function changeOctave(amount) {
 function instrumentChanged() {
     const selectedInstrument = document.querySelector('#instrument-select').value
     patterns[editPatternIdx].instrument = selectedInstrument
+    if (patterns[editPatternIdx].name.match(/^Pattern [0-9]*$/)) {
+        patterns[editPatternIdx].name = patterns[editPatternIdx].instrument
+        changePattern(0)
+    }
 
     instrumentParametersToUi()
 
@@ -354,6 +358,7 @@ function copyPattern() {
 function pastePattern() {
     if (!copiedPattern) return
     patterns[editPatternIdx] = JSON.parse(copiedPattern)
+    patterns[editPatternIdx].name += ' copy'
     changePattern(0)
 }
 
@@ -371,9 +376,19 @@ function copyStep() {
     copiedStep = JSON.stringify(patterns[editPatternIdx].notes[patternStep])
 }
 
-function pasteStep() {
+function pasteStep(mode) {
     if (!copiedStep) return
-    patterns[editPatternIdx].notes[patternStep] = JSON.parse(copiedStep)
+    if (mode === 'fill') {
+        const spacing = prompt('Fill spacing?', '4')
+        if (!spacing || isNaN(spacing)) return
+        for (let step = patternStep; step < 32; step++) {
+            if ((step - patternStep) % spacing === 0) {
+                patterns[editPatternIdx].notes[step] = JSON.parse(copiedStep)
+            }
+        }
+    } else {
+        patterns[editPatternIdx].notes[patternStep] = JSON.parse(copiedStep)
+    }
     updateStep()
 }
 
