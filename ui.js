@@ -121,6 +121,7 @@ function renderDownload() {
 }
 
 let linkExpirationTimeout = undefined
+const urlFormatter = urlformat()
 
 function textShortener(text, direction) {
     const tagReplacers = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -163,7 +164,7 @@ function getLink() {
     const a = document.querySelector('#share-link')
     a.innerText = 'Share this link!'
 
-    a.href = location.origin + location.pathname + '?' + btoa(textShortener(getProjectJsonString(), 'shorten'))
+    a.href = location.origin + location.pathname + '?' + urlFormatter.encodeTrack(JSON.parse(getProjectJsonString()))
     linkExpirationTimeout = setTimeout(() => {
         a.innerText = ''
         a.href = '#'
@@ -737,7 +738,11 @@ const start = async (givenProjectId) => {
     if (givenProjectId !== undefined) {
         let project
         if (givenProjectId === 'from-link') {
-            project = JSON.parse(textShortener(atob(location.search.substr(1)), 'expand'))
+            try {
+                project = urlFormatter.decodeTrack(location.search.substring(1))
+            } catch (e) {
+                project = JSON.parse(textShortener(atob(location.search.substring(1)), 'expand'))
+            }
         } else {
             projectId = givenProjectId
             project = JSON.parse(localStorage.getItem('simple-synth-project:' + projectId))
