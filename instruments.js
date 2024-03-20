@@ -1,14 +1,3 @@
-
-waveforms = {
-    square: 'AGd/fX5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn1/ZwCYgIKBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCgJg=',
-    saw: 'AAIEBggKCw4PEhMWGBocHiAiJCUoKSwuLzIzNjc6Oz1AQURFSEpLTlBSVFVYWlxeYGFkZWhqbG1wcXR2d3p8fYCBhIWIioyNkJGUlZiam56foqSlqKmsrbCxtLa4uru+v8LDxcjJzM3Q0dTW2Nrc3eDi5Obo6uzu8PL09vj5/P0=',
-    sin: 'AAYMEhgfJSswNjxBR0xRVVpeYmZqbXBzdnh6fH1+f39/f39+fXx6eHZzcG1qZmJeWlVRTEdBPDYwKyUfGBIMBgD58+3n4NrUz8nDvrizrqqloZ2ZlZKPjImHhYOCgYCAgICAgYKDhYeJjI+SlZmdoaWqrrO4vsPJz9Ta4Oft8/k=',
-    tri: 'g4eLj5OXm5+ipqqusra6vsHFyc3R1dnd4eTo7PD0+PwAAwcLDxMXGx8iJiouMjY6PkJFSU1RVVldYWRobHB0eHx4dHBsaGRhXVlVUU1JRUI+OjYyLiomIx8bFxMPCwcDAPz49PDs6OTh3dnV0c3JxcG+urayrqqmop+bl5OPi4A=',
-    rectifiedSin: 'gImTnaewusPM1d7n7/f/Bw4VGyEnLDE1OT1AQ0VGSEhJSEhGRUNAPTk1MSwnIRsVDgf/9+/n3tXMw7qwp52TiYCJk52nsLrDzNXe5+/3/wcOFRshJywxNTk9QENFRkhISUhIRkVDQD05NTEsJyEbFQ4H//fv597VzMO6sKedk4k=',
-    twoOctaveSquare: 'ZnpzeHR3dXZ1dnV2dnV2dXZ1d3V3dXd1dnV2dnV3c3we9gX7Av0B/gH+AP8A/////wD/AP8A/wD/AP8A//8A/PAE/AH+Af4A/wD/////AP8A/gD+AP4A/gD/AP//Af0GqICPhYyGi4eKiIqIiYmJiYmJiIqIioiKiImIiYmIioY=',
-    twoOctaveSaw: 'AQUIDBATFxsfIicpLjA2OD0/RUZMTlRWW11iZmhvbX0D0Ojf7Ojy8fn5AAEHCQ4RFRgcICMoKy8yNzk+QUVIT7S3u7/Dx8rO0dbY3eDl5+3u9Pb8/QMFCg0RFRceHCyygJeOm5ehoKior7C2uL3AxMjLz9LX2t7h5unt8PX4/P0=',
-}
-
 const originalInstruments = {
     "basic": {"attack":0.02,"decay":0.1,"sustain":0.2,"release":0.2,"cutoff":0.1,"resonance":0.5,"adsrToFilter":0.2, "distortion": 0,"volume":0.5,"oscShape": "AGd/fX5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn1/ZwCYgIKBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCgJg=", "filterType": 0},
     "pluck": {"attack":0,"decay":0.2,"sustain":0,"release":0.1,"cutoff":0.01,"resonance":0.55,"adsrToFilter":0.55, "distortion": 0,"volume":0.5,"oscShape":"ZnpzeHR3dXZ1dnV2dnV2dXZ1d3V3dXd1dnV2dnV3c3we9gX7Av0B/gH+AP8A/////wD/AP8A/wD/AP8A//8A/PAE/AH+Af4A/wD/////AP8A/gD+AP4A/gD/AP//Af0GqICPhYyGi4eKiIqIiYmJiYmJiIqIioiKiImIiYmIioY=", "filterType": 0},
@@ -44,7 +33,7 @@ function editInstrument(parameterName, parameterValue) {
 
 function resetInstrument() {
     const presetName = patterns[editPatternIdx].instrument;
-    ["attack","decay","sustain","release","cutoff","resonance","adsrToFilter", "distortion","volume"].forEach(param => {
+    ["attack","decay","sustain","release","cutoff","resonance","adsrToFilter", "distortion","volume","filterType"].forEach(param => {
         instruments[presetName][param] = originalInstruments[presetName][param]
     })
     instrumentParametersToUi()
@@ -52,7 +41,7 @@ function resetInstrument() {
 }
 
 function getListOfEditedInstruments() {
-    const paramsToCompare = ["attack","decay","sustain","release","cutoff","resonance", "distortion","adsrToFilter","volume"]
+    const paramsToCompare = ["attack","decay","sustain","release","cutoff","resonance", "distortion","adsrToFilter","volume","filterType"]
     return Object.keys(instruments).filter(key => 
         paramsToCompare.some(param =>
             originalInstruments[key][param] !== instruments[key][param]

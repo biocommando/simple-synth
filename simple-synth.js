@@ -175,6 +175,98 @@
         }
     }
 
+    class MS20Filter {
+
+        update() {
+            this.k2 = 2.2 * this.resonance;
+            const cmtemp = 10.0 - (this.integratedCutoff * (this.cutmod + 1) * 1.4);
+            this.R1 = Math.pow(2.0, cmtemp * 0.7382) * this.pR1;
+            this.R2 = 3 * this.R1;
+            this.Cx = this.Cx0 / this.R1;
+            this.Bx = 2 * this.Cx;
+            this.Ax = this.Cx;
+            const tempTerm2 = (2 * this.k2 * this.T) / this.C2;        // dependent on resonance
+            const tempTerm3 = (2 * this.R2 * this.T) / (this.C1 * this.R1); // dependent on cutoff
+            this.Cy = 4 * this.R2 + this.tempTerm1 - tempTerm2 + tempTerm3 + this.Cx;
+            this.By = ((-8) * this.R2 + this.Bx);
+            this.Ay = 4 * this.R2 - this.tempTerm1 + tempTerm2 - tempTerm3 + this.Ax;
+            this.iCy = 1 / this.Cy;
+        }
+
+        updateConstants() {
+            this.C1 = this.pC1;
+            this.C2 = this.C1 * 0.30303;
+            this.Cx0 = (this.T * this.T) / (this.C1 * this.C2);
+            this.tempTerm1 = (2 * this.T) / this.C1 + (2 * this.T) / this.C2;
+        }
+
+        constructor() {
+            this.T = 1.0 / sampleRate;
+            this.pC1 = 0.0000000033;
+            this.pR1 = 20000;
+            this.xm2 = 0;
+            this.xm1 = 0;
+            this.ym1 = 0;
+            this.ym2 = 0;
+            this.sampleIdx = 14;
+            this.setCutoff(1);
+            this.integratedCutoff = this.cutoff;
+            this.setResonance(0);
+            this.setModulation(0);
+            this.updateConstants();
+            this.update();
+        }
+
+        process(x) {
+            this.integratedCutoff = this.integratedCutoff + (this.cutoff - this.integratedCutoff) * 0.01;
+            if (++this.sampleIdx == 15) {
+                this.sampleIdx = 0;
+                this.update();
+            }
+            const y = (this.Ax * this.xm2 + this.Bx * this.xm1 + this.Cx * x - this.Ay * this.ym2 - this.By * this.ym1) * this.iCy;
+
+            // saturation
+            if (x < -1)
+                x = -1;
+            else if (x > 1)
+                x = 1;
+            this.xm1 = x;
+            this.ym2 = this.ym1;
+            this.ym1 = y;
+            return y;
+        }
+        setCutoff(v) {
+            if (v < 0) v = 0;
+            if (v > 1) v = 1;
+            this.cutoff = 10 * v;
+        }
+
+        setResonance(v) {
+            this.resonance = v;
+        }
+
+        setModulation(v) {
+            this.cutmod = v;
+        }
+
+        setComponentValues(c, r) {
+            this.pC1 = c;
+            this.pR1 = r;
+            this.updateConstants();
+        }
+
+        reset() {
+            this.integratedCutoff = this.cutoff;
+            this.xm2 = 0;
+            this.xm1 = 0;
+            this.ym1 = 0;
+            this.ym2 = 0;
+            this.sampleIdx = 14;
+            this.updateConstants();
+            this.update();
+        }
+    };
+
     class Envelope {
         constructor(hasLength) {
             this.length = hasLength ? 0 : -1
@@ -305,6 +397,9 @@
             case 4:
                 filter = new HpfNPole(4)
                 break
+            case 5:
+                filter = new MS20Filter()
+                break
             default:
             case 0:
                 filter = new MoogFilter()
@@ -344,7 +439,11 @@
     if (isWorkletNode) {
         extClass = AudioWorkletProcessor
     } else {
-        extClass = class Dummy { }
+        extClass = class Dummy {
+            constructor() {
+                this.port = { postMessage: () => {} }
+            }
+        }
     }
 
     class SimpleSynth extends extClass {
@@ -365,12 +464,10 @@
         handlePortEvent(message) {
             if (message.type === 'note-on') {
                 const noteId = this.noteOn(message.note, message.voiceInit, message.lengthMs)
-                if (isWorkletNode) {
-                    this.postMessage('note-on' , {
-                        noteId,
-                        correlationId: message.correlationId
-                    })
-                }
+                this.postMessage('note-on' , {
+                    noteId,
+                    correlationId: message.correlationId
+                })
             } else if (message.type === 'note-off') {
                 this.noteOff(message.noteId)
             } else if (message.type === 'preset') {
@@ -401,9 +498,7 @@
                 const next = this.sequence.noteData[step]
                 if (next && next.position <= this.sequence.position) {
                     this.sequence.step++
-                    if (isWorkletNode) {
-                        this.postMessage('seq-step', {step: this.sequence.step, positionSeconds: this.sequence.position / sampleRate})
-                    }
+                    this.postMessage('seq-step', {step: this.sequence.step, positionSeconds: this.sequence.position / sampleRate})
                     next.notes.forEach(noteInit => {
                         this.noteOn(noteInit.note, { presetId: noteInit.preset, delaySend: noteInit.delaySend }, noteInit.lengthMs)
                     })

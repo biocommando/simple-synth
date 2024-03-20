@@ -80,13 +80,13 @@ function urlformat() {
         substring = substring.slice(1)
         let idx = substring.indexOf('X')
         const pianoKeyOffsetAndDelaySend = parseInt(substring.slice(0, idx), 36)
-        const pianoKeyOffset = pianoKeyOffsetAndDelaySend >> 7
+        const pianoKeysOffset = pianoKeyOffsetAndDelaySend >> 7
         const delaySend = (pianoKeyOffsetAndDelaySend & 127) / 127
         substring = substring.slice(idx + 1)
         idx = substring.indexOf('X')
         const name = substring.slice(0, idx).replace(/_/g, ' ')
         substring = substring.slice(idx + 1)
-        return [{ notes, instrument, pianoKeyOffset, delaySend, name }, substring]
+        return [{ notes, instrument, pianoKeysOffset, delaySend, name }, substring]
     }
 
     function encodePatterns(patterns) {
