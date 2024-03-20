@@ -121,7 +121,9 @@
                 <h3>Common</h3>
                 Distortion: <input id="instr-edit-distortion" type="range" min="0" max="1" step="0.01"
                     oninput="editInstrument('distortion', Number(this.value))" />
-                Volume: <input id="instr-edit-volume" type="range" min="0" max="1" step="0.01"
+                Sub osc volume: <input id="instr-edit-subVolume" type="range" min="0" max="1" step="0.01"
+                    oninput="editInstrument('subVolume', Number(this.value))" />
+                Total volume: <input id="instr-edit-volume" type="range" min="0" max="1" step="0.01"
                     oninput="editInstrument('volume', Number(this.value))" />
                 <br />
                 <button onclick="resetInstrument()">Reset instrument</button>

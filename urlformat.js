@@ -132,6 +132,7 @@ function urlformat() {
             instrument.data.adsrToFilter,
             instrument.data.distortion,
             instrument.data.volume,
+            instrument.data.subVolume,
         ]
         const data = [...scaledData.map(x => Math.floor(x * scalingFactor)), instrument.data.filterType,]
         return instrumentMapping.find(x => x[0] === instrument.name)[1] +
@@ -144,12 +145,14 @@ function urlformat() {
         const scalingFactor = parseInt('zz', 36)
         const scaledData = data.map(x => x / scalingFactor)
         const [attack, decay, sustain, release, cutoff, resonance,
-            adsrToFilter, distortion, volume] = scaledData
+            adsrToFilter, distortion, volume, subVolume, filterType_unused] = scaledData
         const filterType = data[data.length - 1]
         const instrument = {
             name, data: {
                 attack, decay, sustain, release, cutoff, resonance,
-                adsrToFilter, distortion, volume, filterType
+                adsrToFilter, distortion, volume, filterType,
+                // Support earlier versions of the format
+                subVolume: filterType_unused === undefined ? 0 : subVolume,
             }
         }
         return [instrument, newSubstring]

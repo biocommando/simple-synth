@@ -314,7 +314,7 @@ function changePattern(amount, updateSequence = true) {
 }
 
 function instrumentParametersToUi() {
-    const params = ["attack", "decay", "sustain", "release", "cutoff", "resonance", "adsrToFilter", "distortion", "volume", "filterType"]
+    const params = ["attack", "decay", "sustain", "release", "cutoff", "resonance", "adsrToFilter", "distortion", "volume", "filterType", "subVolume"]
     params.forEach(p => document.querySelector(`#instr-edit-${p}`).value = instruments[patterns[editPatternIdx].instrument][p])
 }
 
@@ -669,17 +669,29 @@ function onDocumentLoad() {
             .join('')
     }
 
-    const b64ToNum = base64_string => {
-        const ints = Int8Array.from(atob(base64_string), c => c.charCodeAt(0))
-        const arr = []
-        for (let i = 0; i < ints.length; i++) {
-            arr.push(ints[i] / 128)
-        }
-        return arr
-    }
-
-
-    Object.keys(instruments).forEach(key => instruments[key].oscShape = b64ToNum(instruments[key].oscShape))
+    fetch('waveforms.bin')
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            const array = new Uint8Array(buffer)
+            let idx = 0
+            const textDecoder = new TextDecoder('utf-8')
+            function parseOneWaveform() {
+                const name = textDecoder.decode(array.slice(idx, idx + 16).filter(x => x !== 0))
+                idx += 16
+                const length = new DataView(array.buffer, idx, 2).getUint16(0, true)
+                idx += 2
+                const waveform = new Int8Array(array.buffer, idx, length)
+                const scaledArray = []
+                for (let i = 0; i < waveform.length; i++) {
+                    scaledArray.push(waveform[i] / 128)
+                }
+                idx += length
+                instruments[name].oscShape = scaledArray
+            }
+            while (idx < array.length) {
+                parseOneWaveform()
+            }
+        })
 
     Object.keys(instruments).forEach(key => {
         document.querySelector('#instrument-select').innerHTML += `<option value=${key}>${key}</option>`

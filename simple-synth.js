@@ -427,6 +427,8 @@
             filter,
             phase: 0,
             phaseProgress: init.phaseProgress,
+            subPhase: 0,
+            subVol: init.subVolume,
             volume: init.volume,
             id: init.id,
             killAt,
@@ -515,6 +517,13 @@
                 for (let k = 0; k < this.voices.length; k++) {
                     let voice = this.voices[k]
                     let vValue = voice.oscShape[Math.floor(voice.phase * voice.oscShape.length)]
+                    if (voice.subVol > 0) {
+                        vValue += voice.oscShape[Math.floor(voice.subPhase * voice.oscShape.length)] * voice.subVol
+                        voice.subPhase += voice.phaseProgress * 0.5
+                        if (voice.subPhase >= 1) {
+                            voice.subPhase -= 1
+                        }
+                    }
                     vValue = voice.filter.process(vValue)
                     vValue = voice.distortion.process(vValue)
 
